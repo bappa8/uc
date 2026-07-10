@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter Pro</title>
+<style>
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-light: rgba(59, 130, 246, 0.15);
+    --border: #475569;
+    --success: #22c55e;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --radius: 12px;
+    --transition: 0.2s ease;
+    --color-1: #60a5fa;
+    --color-2: #f472b6;
+    --color-3: #34d399;
+    --color-4: #fbbf24;
+    --color-5: #a78bfa;
+    --color-6: #fb923c;
+    --color-7: #2dd4bf;
+    --sidebar-bg: #1e293b;
+  }
+
+  .light-mode {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: rgba(37, 99, 235, 0.1);
+    --border: #cbd5e1;
+    --success: #16a34a;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --sidebar-bg: #ffffff;
+    --color-1: #2563eb;
+    --color-2: #db2777;
+    --color-3: #059669;
+    --color-4: #d97706;
+    --color-5: #7c3aed;
+    --color-6: #ea580c;
+    --color-7: #0d9488;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    transition: background 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-1), var(--color-5));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sidebar-search {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border var(--transition);
+  }
+
+  .sidebar-search input:focus {
+    border-color: var(--accent);
+  }
+
+  .sidebar-search input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .category-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .category-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .category-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .category-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .category-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .category-item:hover {
+    background: var(--accent-light);
+    color: var(--text-primary);
+  }
+
+  .category-item.active {
+    background: linear-gradient(135deg, var(--color-1), var(--color-5));
+    color: white;
+  }
+
+  .category-item .icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-size: 20px;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .theme-toggle:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
+  }
+
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .category-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--color-1), var(--color-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .category-subtitle {
+    font-size: 14px;
+    color: var(--color-4);
+    margin-bottom: 32px;
+  }
+
+  .converter-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--border);
+    transition: background 0.3s ease, border 0.3s ease;
+  }
+
+  .converter-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .converter-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .converter-field {
+    flex: 1;
+  }
+
+  .converter-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-3);
+    margin-bottom: 6px;
+    transition: color 0.3s ease;
+  }
+
+  .converter-field select,
+  .converter-field input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+    outline: none;
+    transition: border var(--transition), background 0.3s ease, color 0.3s ease;
+  }
+
+  .converter-field select:focus,
+  .converter-field input:focus {
+    border-color: var(--accent);
+  }
+
+  .converter-field input {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+
+  .converter-field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  .converter-field select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .swap-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--color-6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    flex-shrink: 0;
+    margin-top: 22px;
+  }
+
+  .swap-btn:hover {
+    background: var(--color-6);
+    color: white;
+    border-color: var(--color-6);
+    transform: rotate(180deg);
+  }
+
+  .swap-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .action-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--color-7);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-btn:hover {
+    background: var(--accent-light);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .action-btn.copied {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 100;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 49;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 16px 16px;
+    color: var(--color-5);
+    font-size: 13px;
+    opacity: 0.8;
+    transition: color 0.3s ease;
+  }
+
+  .footer span {
+    background: linear-gradient(135deg, var(--color-1), var(--color-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+    .sidebar {
+      position: fixed;
+      left: -300px;
+      z-index: 50;
+      transition: left 0.3s ease;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-overlay.open { display: block; }
+    .main-content { padding: 60px 16px 24px; }
+    .converter-row { flex-direction: column; gap: 8px; }
+    .swap-btn { margin-top: 0; transform: rotate(90deg); }
+    .swap-btn:hover { transform: rotate(270deg); }
+    .action-buttons { flex-wrap: wrap; }
+    .theme-toggle { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>⚡ Unit Converter</h1>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="categorySearch" placeholder="Search categories..." />
+  </div>
+  <nav class="category-list" id="categoryList"></nav>
+</aside>
+
+<main class="main-content">
+  <h2 class="category-title" id="categoryTitle">Length</h2>
+  <p class="category-subtitle" id="categorySubtitle">Convert between units of length</p>
+
+  <div class="converter-card">
+    <div class="converter-row">
+      <div class="converter-field">
+        <label>From</label>
+        <input type="text" id="fromValue" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="converter-field">
+        <label>Unit</label>
+        <select id="fromUnit"></select>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:center;">
+      <button class="swap-btn" id="swapBtn" title="Swap units">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="converter-row">
+      <div class="converter-field">
+        <label>To</label>
+        <input type="text" id="toValue" readonly />
+      </div>
+      <div class="converter-field">
+        <label>Unit</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" id="copyBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Result
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>© Bappa Ghosh. All Rights Reserved.</span>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== UNIT CATEGORIES =====
+  const categories = [
+    {
+      id: 'length',
+      name: 'Length',
+      icon: '📏',
+      subtitle: 'Convert between units of length',
+      units: ['Nanometers', 'Micrometers', 'Millimeters', 'Centimeters', 'Meters', 'Kilometers', 'Inches', 'Feet', 'Yards', 'Miles', 'Nautical Miles'],
+      base: 'Meters',
+      toBase: {
+        Nanometers: v => v * 1e-9,
+        Micrometers: v => v * 1e-6,
+        Millimeters: v => v * 0.001,
+        Centimeters: v => v * 0.01,
+        Meters: v => v,
+        Kilometers: v => v * 1000,
+        Inches: v => v * 0.0254,
+        Feet: v => v * 0.3048,
+        Yards: v => v * 0.9144,
+        Miles: v => v * 1609.344,
+        'Nautical Miles': v => v * 1852
+      },
+      fromBase: {
+        Nanometers: v => v / 1e-9,
+        Micrometers: v => v / 1e-6,
+        Millimeters: v => v / 0.001,
+        Centimeters: v => v / 0.01,
+        Meters: v => v,
+        Kilometers: v => v / 1000,
+        Inches: v => v / 0.0254,
+        Feet: v => v / 0.3048,
+        Yards: v => v / 0.9144,
+        Miles: v => v / 1609.344,
+        'Nautical Miles': v => v / 1852
+      }
+    },
+    {
+      id: 'mass',
+      name: 'Mass/Weight',
+      icon: '⚖️',
+      subtitle: 'Convert between units of mass and weight',
+      units: ['Micrograms', 'Milligrams', 'Carats', 'Grams', 'Kilograms', 'Metric Tons', 'Ounces', 'Pounds', 'Stones', 'Grains', 'Slugs'],
+      base: 'Kilograms',
+      toBase: {
+        Micrograms: v => v * 1e-9,
+        Milligrams: v => v * 1e-6,
+        Carats: v => v * 0.0002,
+        Grams: v => v * 0.001,
+        Kilograms: v => v,
+        'Metric Tons': v => v * 1000,
+        Ounces: v => v * 0.028349523125,
+        Pounds: v => v * 0.45359237,
+        Stones: v => v * 6.35029318,
+        Grains: v => v * 0.00006479891,
+        Slugs: v => v * 14.59390294
+      },
+      fromBase: {
+        Micrograms: v => v / 1e-9,
+        Milligrams: v => v / 1e-6,
+        Carats: v => v / 0.0002,
+        Grams: v => v / 0.001,
+        Kilograms: v => v,
+        'Metric Tons': v => v / 1000,
+        Ounces: v => v / 0.028349523125,
+        Pounds: v => v / 0.45359237,
+        Stones: v => v / 6.35029318,
+        Grains: v => v / 0.00006479891,
+        Slugs: v => v / 14.59390294
+      }
+    },
+    {
+      id: 'area',
+      name: 'Area',
+      icon: '📐',
+      subtitle: 'Convert between units of area',
+      units: ['Square Millimeters', 'Square Centimeters', 'Square Meters', 'Square Kilometers', 'Square Inches', 'Square Feet', 'Square Yards', 'Square Miles', 'Acres', 'Hectares'],
+      base: 'Square Meters',
+      toBase: {
+        'Square Millimeters': v => v * 1e-6,
+        'Square Centimeters': v => v * 0.0001,
+        'Square Meters': v => v,
+        'Square Kilometers': v => v * 1e6,
+        'Square Inches': v => v * 0.00064516,
+        'Square Feet': v => v * 0.09290304,
+        'Square Yards': v => v * 0.83612736,
+        'Square Miles': v => v * 2589988.110336,
+        Acres: v => v * 4046.8564224,
+        Hectares: v => v * 10000
+      },
+      fromBase: {
+        'Square Millimeters': v => v / 1e-6,
+        'Square Centimeters': v => v / 0.0001,
+        'Square Meters': v => v,
+        'Square Kilometers': v => v / 1e6,
+        'Square Inches': v => v / 0.00064516,
+        'Square Feet': v => v / 0.09290304,
+        'Square Yards': v => v / 0.83612736,
+        'Square Miles': v => v / 2589988.110336,
+        Acres: v => v / 4046.8564224,
+        Hectares: v => v / 10000
+      }
+    },
+    {
+      id: 'volume',
+      name: 'Volume',
+      icon: '🧊',
+      subtitle: 'Convert between units of volume',
+      units: ['Milliliters', 'Liters', 'Cubic Meters', 'Cubic Inches', 'Cubic Feet', 'Cubic Yards', 'Teaspoons', 'Tablespoons', 'Fluid Ounces', 'Cups', 'Pints', 'Quarts', 'Gallons', 'Acre-feet'],
+      base: 'Liters',
+      toBase: {
+        Milliliters: v => v * 0.001,
+        Liters: v => v,
+        'Cubic Meters': v => v * 1000,
+        'Cubic Inches': v => v * 0.016387064,
+        'Cubic Feet': v => v * 28.316846592,
+        'Cubic Yards': v => v * 764.554857984,
+        Teaspoons: v => v * 0.00492892159375,
+        Tablespoons: v => v * 0.01478676478125,
+        'Fluid Ounces': v => v * 0.0295735295625,
+        Cups: v => v * 0.2365882365,
+        Pints: v => v * 0.473176473,
+        Quarts: v => v * 0.946352946,
+        Gallons: v => v * 3.785411784,
+        'Acre-feet': v => v * 1233481.8375475
+      },
+      fromBase: {
+        Milliliters: v => v / 0.001,
+        Liters: v => v,
+        'Cubic Meters': v => v / 1000,
+        'Cubic Inches': v => v / 0.016387064,
+        'Cubic Feet': v => v / 28.316846592,
+        'Cubic Yards': v => v / 764.554857984,
+        Teaspoons: v => v / 0.00492892159375,
+        Tablespoons: v => v / 0.01478676478125,
+        'Fluid Ounces': v => v / 0.0295735295625,
+        Cups: v => v / 0.2365882365,
+        Pints: v => v / 0.473176473,
+        Quarts: v => v / 0.946352946,
+        Gallons: v => v / 3.785411784,
+        'Acre-feet': v => v / 1233481.8375475
+      }
+    },
+    {
+      id: 'temperature',
+      name: 'Temperature',
+      icon: '🌡️',
+      subtitle: 'Convert between temperature scales (non-linear)',
+      units: ['Celsius', 'Fahrenheit', 'Kelvin', 'Rankine'],
+      base: 'Celsius',
+      convert: (value, from, to) => {
+        let c;
+        if (from === 'Celsius') c = value;
+        else if (from === 'Fahrenheit') c = (value - 32) * 5 / 9;
+        else if (from === 'Kelvin') c = value - 273.15;
+        else if (from === 'Rankine') c = (value - 491.67) * 5 / 9;
+
+        if (to === 'Celsius') return c;
+        if (to === 'Fahrenheit') return c * 9 / 5 + 32;
+        if (to === 'Kelvin') return c + 273.15;
+        if (to === 'Rankine') return (c + 273.15) * 9 / 5;
+        return c;
+      }
+    },
+    {
+      id: 'time',
+      name: 'Time',
+      icon: '⏱️',
+      subtitle: 'Convert between units of time',
+      units: ['Nanoseconds', 'Microseconds', 'Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years', 'Decades', 'Centuries'],
+      base: 'Seconds',
+      toBase: {
+        Nanoseconds: v => v * 1e-9,
+        Microseconds: v => v * 1e-6,
+        Milliseconds: v => v * 0.001,
+        Seconds: v => v,
+        Minutes: v => v * 60,
+        Hours: v => v * 3600,
+        Days: v => v * 86400,
+        Weeks: v => v * 604800,
+        Months: v => v * 2629800,
+        Years: v => v * 31557600,
+        Decades: v => v * 315576000,
+        Centuries: v => v * 3155760000
+      },
+      fromBase: {
+        Nanoseconds: v => v / 1e-9,
+        Microseconds: v => v / 1e-6,
+        Milliseconds: v => v / 0.001,
+        Seconds: v => v,
+        Minutes: v => v / 60,
+        Hours: v => v / 3600,
+        Days: v => v / 86400,
+        Weeks: v => v / 604800,
+        Months: v => v / 2629800,
+        Years: v => v / 31557600,
+        Decades: v => v / 315576000,
+        Centuries: v => v / 3155760000
+      }
+    },
+    {
+      id: 'digital',
+      name: 'Digital Storage',
+      icon: '💾',
+      subtitle: 'Convert between digital storage units',
+      units: ['Bits', 'Nibbles', 'Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes', 'Petabytes', 'Exabytes'],
+      base: 'Bytes',
+      toBase: {
+        Bits: v => v * 0.125,
+        Nibbles: v => v * 0.5,
+        Bytes: v => v,
+        Kilobytes: v => v * 1024,
+        Megabytes: v => v * 1048576,
+        Gigabytes: v => v * 1073741824,
+        Terabytes: v => v * 1099511627776,
+        Petabytes: v => v * 1125899906842624,
+        Exabytes: v => v * 1152921504606846976
+      },
+      fromBase: {
+        Bits: v => v / 0.125,
+        Nibbles: v => v / 0.5,
+        Bytes: v => v,
+        Kilobytes: v => v / 1024,
+        Megabytes: v => v / 1048576,
+        Gigabytes: v => v / 1073741824,
+        Terabytes: v => v / 1099511627776,
+        Petabytes: v => v / 1125899906842624,
+        Exabytes: v => v / 1152921504606846976
+      }
+    },
+    {
+      id: 'speed',
+      name: 'Speed',
+      icon: '🚀',
+      subtitle: 'Convert between units of speed',
+      units: ['Meters/Second', 'Kilometers/Hour', 'Feet/Second', 'Miles/Hour', 'Knots', 'Mach', 'Speed of Light'],
+      base: 'Meters/Second',
+      toBase: {
+        'Meters/Second': v => v,
+        'Kilometers/Hour': v => v * 0.27777777777778,
+        'Feet/Second': v => v * 0.3048,
+        'Miles/Hour': v => v * 0.44704,
+        Knots: v => v * 0.51444444444444,
+        Mach: v => v * 343,
+        'Speed of Light': v => v * 299792458
+      },
+      fromBase: {
+        'Meters/Second': v => v,
+        'Kilometers/Hour': v => v / 0.27777777777778,
+        'Feet/Second': v => v / 0.3048,
+        'Miles/Hour': v => v / 0.44704,
+        Knots: v => v / 0.51444444444444,
+        Mach: v => v / 343,
+        'Speed of Light': v => v / 299792458
+      }
+    },
+    {
+      id: 'energy',
+      name: 'Energy',
+      icon: '⚡',
+      subtitle: 'Convert between units of energy',
+      units: ['Joules', 'Kilojoules', 'Calories', 'Kilocalories', 'Watt-hours', 'Kilowatt-hours', 'Electronvolts', 'BTU', 'Foot-pounds', 'Therms'],
+      base: 'Joules',
+      toBase: {
+        Joules: v => v,
+        Kilojoules: v => v * 1000,
+        Calories: v => v * 4.184,
+        Kilocalories: v => v * 4184,
+        'Watt-hours': v => v * 3600,
+        'Kilowatt-hours': v => v * 3.6e6,
+        Electronvolts: v => v * 1.602176634e-19,
+        BTU: v => v * 1055.05585262,
+        'Foot-pounds': v => v * 1.3558179483314,
+        Therms: v => v * 105505585.262
+      },
+      fromBase: {
+        Joules: v => v,
+        Kilojoules: v => v / 1000,
+        Calories: v => v / 4.184,
+        Kilocalories: v => v / 4184,
+        'Watt-hours': v => v / 3600,
+        'Kilowatt-hours': v => v / 3.6e6,
+        Electronvolts: v => v / 1.602176634e-19,
+        BTU: v => v / 1055.05585262,
+        'Foot-pounds': v => v / 1.3558179483314,
+        Therms: v => v / 105505585.262
+      }
+    },
+    {
+      id: 'power',
+      name: 'Power',
+      icon: '🔌',
+      subtitle: 'Convert between units of power',
+      units: ['Watts', 'Kilowatts', 'Megawatts', 'Gigawatts', 'Horsepower', 'BTU/Hour', 'Foot-pounds/Second'],
+      base: 'Watts',
+      toBase: {
+        Watts: v => v,
+        Kilowatts: v => v * 1000,
+        Megawatts: v => v * 1e6,
+        Gigawatts: v => v * 1e9,
+        Horsepower: v => v * 745.69987158227,
+        'BTU/Hour': v => v * 0.29307107017,
+        'Foot-pounds/Second': v => v * 1.3558179483314
+      },
+      fromBase: {
+        Watts: v => v,
+        Kilowatts: v => v / 1000,
+        Megawatts: v => v / 1e6,
+        Gigawatts: v => v / 1e9,
+        Horsepower: v => v / 745.69987158227,
+        'BTU/Hour': v => v / 0.29307107017,
+        'Foot-pounds/Second': v => v / 1.3558179483314
+      }
+    },
+    {
+      id: 'pressure',
+      name: 'Pressure',
+      icon: '🎈',
+      subtitle: 'Convert between units of pressure',
+      units: ['Pascals', 'Kilopascals', 'Megapascals', 'Bar', 'PSI', 'Atmospheres', 'Torr', 'mmHg', 'inHg'],
+      base: 'Pascals',
+      toBase: {
+        Pascals: v => v,
+        Kilopascals: v => v * 1000,
+        Megapascals: v => v * 1e6,
+        Bar: v => v * 100000,
+        PSI: v => v * 6894.757293168,
+        Atmospheres: v => v * 101325,
+        Torr: v => v * 133.32236842105,
+        mmHg: v => v * 133.322387415,
+        inHg: v => v * 3386.389
+      },
+      fromBase: {
+        Pascals: v => v,
+        Kilopascals: v => v / 1000,
+        Megapascals: v => v / 1e6,
+        Bar: v => v / 100000,
+        PSI: v => v / 6894.757293168,
+        Atmospheres: v => v / 101325,
+        Torr: v => v / 133.32236842105,
+        mmHg: v => v / 133.322387415,
+        inHg: v => v / 3386.389
+      }
+    },
+    {
+      id: 'angle',
+      name: 'Angle',
+      icon: '📐',
+      subtitle: 'Convert between units of angle',
+      units: ['Degrees', 'Radians', 'Gradians', 'Milliradians', 'Arcminutes', 'Arcseconds'],
+      base: 'Radians',
+      toBase: {
+        Degrees: v => v * Math.PI / 180,
+        Radians: v => v,
+        Gradians: v => v * Math.PI / 200,
+        Milliradians: v => v * 0.001,
+        Arcminutes: v => v * Math.PI / 10800,
+        Arcseconds: v => v * Math.PI / 648000
+      },
+      fromBase: {
+        Degrees: v => v * 180 / Math.PI,
+        Radians: v => v,
+        Gradians: v => v * 200 / Math.PI,
+        Milliradians: v => v / 0.001,
+        Arcminutes: v => v * 10800 / Math.PI,
+        Arcseconds: v => v * 648000 / Math.PI
+      }
+    },
+    {
+      id: 'force',
+      name: 'Force',
+      icon: '💪',
+      subtitle: 'Convert between units of force',
+      units: ['Newtons', 'Kilonewtons', 'Pound-force', 'Dynes', 'Kips', 'Poundals'],
+      base: 'Newtons',
+      toBase: {
+        Newtons: v => v,
+        Kilonewtons: v => v * 1000,
+        'Pound-force': v => v * 4.4482216152605,
+        Dynes: v => v * 1e-5,
+        Kips: v => v * 4448.2216152605,
+        Poundals: v => v * 0.138254954376
+      },
+      fromBase: {
+        Newtons: v => v,
+        Kilonewtons: v => v / 1000,
+        'Pound-force': v => v / 4.4482216152605,
+        Dynes: v => v / 1e-5,
+        Kips: v => v / 4448.2216152605,
+        Poundals: v => v / 0.138254954376
+      }
+    },
+    {
+      id: 'torque',
+      name: 'Torque',
+      icon: '🔧',
+      subtitle: 'Convert between units of torque',
+      units: ['Newton-meters', 'Kilonewton-meters', 'Pound-feet', 'Pound-inches', 'Kilogram-meters'],
+      base: 'Newton-meters',
+      toBase: {
+        'Newton-meters': v => v,
+        'Kilonewton-meters': v => v * 1000,
+        'Pound-feet': v => v * 1.3558179483314,
+        'Pound-inches': v => v * 0.11298482933333,
+        'Kilogram-meters': v => v * 9.80665
+      },
+      fromBase: {
+        'Newton-meters': v => v,
+        'Kilonewton-meters': v => v / 1000,
+        'Pound-feet': v => v / 1.3558179483314,
+        'Pound-inches': v => v / 0.11298482933333,
+        'Kilogram-meters': v => v / 9.80665
+      }
+    },
+    {
+      id: 'fuel',
+      name: 'Fuel Economy',
+      icon: '⛽',
+      subtitle: 'Convert between fuel economy units (non-linear)',
+      units: ['Miles per Gallon', 'Miles per Imperial Gallon', 'Liters per 100 Kilometers', 'Kilometers per Liter'],
+      base: 'Liters per 100 Kilometers',
+      convert: (value, from, to) => {
+        if (from === to) return value;
+        let l100;
+        if (from === 'Liters per 100 Kilometers') l100 = value;
+        else if (from === 'Miles per Gallon') l100 = value ? 235.214583 / value : Infinity;
+        else if (from === 'Miles per Imperial Gallon') l100 = value ? 282.481053 / value : Infinity;
+        else if (from === 'Kilometers per Liter') l100 = value ? 100 / value : Infinity;
+
+        if (l100 === Infinity) return 0;
+
+        if (to === 'Liters per 100 Kilometers') return l100;
+        if (to === 'Miles per Gallon') return l100 ? 235.214583 / l100 : Infinity;
+        if (to === 'Miles per Imperial Gallon') return l100 ? 282.481053 / l100 : Infinity;
+        if (to === 'Kilometers per Liter') return l100 ? 100 / l100 : Infinity;
+        return l100;
+      }
+    },
+    {
+      id: 'frequency',
+      name: 'Frequency',
+      icon: '〰️',
+      subtitle: 'Convert between units of frequency',
+      units: ['Hertz', 'Kilohertz', 'Megahertz', 'Gigahertz', 'Terahertz', 'RPM'],
+      base: 'Hertz',
+      toBase: {
+        Hertz: v => v,
+        Kilohertz: v => v * 1000,
+        Megahertz: v => v * 1e6,
+        Gigahertz: v => v * 1e9,
+        Terahertz: v => v * 1e12,
+        RPM: v => v / 60
+      },
+      fromBase: {
+        Hertz: v => v,
+        Kilohertz: v => v / 1000,
+        Megahertz: v => v / 1e6,
+        Gigahertz: v => v / 1e9,
+        Terahertz: v => v / 1e12,
+        RPM: v => v * 60
+      }
+    },
+    {
+      id: 'density',
+      name: 'Density',
+      icon: '🧪',
+      subtitle: 'Convert between units of density',
+      units: ['Kilograms/Cubic Meter', 'Grams/Cubic Centimeter', 'Grams/Milliliter', 'Pounds/Cubic Foot', 'Pounds/Cubic Inch'],
+      base: 'Kilograms/Cubic Meter',
+      toBase: {
+        'Kilograms/Cubic Meter': v => v,
+        'Grams/Cubic Centimeter': v => v * 1000,
+        'Grams/Milliliter': v => v * 1000,
+        'Pounds/Cubic Foot': v => v * 16.01846337396,
+        'Pounds/Cubic Inch': v => v * 27679.904710191
+      },
+      fromBase: {
+        'Kilograms/Cubic Meter': v => v,
+        'Grams/Cubic Centimeter': v => v / 1000,
+        'Grams/Milliliter': v => v / 1000,
+        'Pounds/Cubic Foot': v => v / 16.01846337396,
+        'Pounds/Cubic Inch': v => v / 27679.904710191
+      }
+    },
+    {
+      id: 'current',
+      name: 'Electric Current',
+      icon: '⚡',
+      subtitle: 'Convert between units of electric current',
+      units: ['Nanoamperes', 'Microamperes', 'Milliamperes', 'Amperes', 'Kiloamperes'],
+      base: 'Amperes',
+      toBase: {
+        Nanoamperes: v => v * 1e-9,
+        Microamperes: v => v * 1e-6,
+        Milliamperes: v => v * 0.001,
+        Amperes: v => v,
+        Kiloamperes: v => v * 1000
+      },
+      fromBase: {
+        Nanoamperes: v => v / 1e-9,
+        Microamperes: v => v / 1e-6,
+        Milliamperes: v => v / 0.001,
+        Amperes: v => v,
+        Kiloamperes: v => v / 1000
+      }
+    },
+    {
+      id: 'voltage',
+      name: 'Voltage',
+      icon: '🔋',
+      subtitle: 'Convert between units of electric potential',
+      units: ['Nanovolts', 'Microvolts', 'Millivolts', 'Volts', 'Kilovolts', 'Megavolts'],
+      base: 'Volts',
+      toBase: {
+        Nanovolts: v => v * 1e-9,
+        Microvolts: v => v * 1e-6,
+        Millivolts: v => v * 0.001,
+        Volts: v => v,
+        Kilovolts: v => v * 1000,
+        Megavolts: v => v * 1e6
+      },
+      fromBase: {
+        Nanovolts: v => v / 1e-9,
+        Microvolts: v => v / 1e-6,
+        Millivolts: v => v / 0.001,
+        Volts: v => v,
+        Kilovolts: v => v / 1000,
+        Megavolts: v => v / 1e6
+      }
+    },
+    {
+      id: 'resistance',
+      name: 'Electric Resistance',
+      icon: '🔌',
+      subtitle: 'Convert between units of electrical resistance',
+      units: ['Microhms', 'Milliohms', 'Ohms', 'Kilohms', 'Megohms', 'Gigaohms'],
+      base: 'Ohms',
+      toBase: {
+        Microhms: v => v * 1e-6,
+        Milliohms: v => v * 0.001,
+        Ohms: v => v,
+        Kilohms: v => v * 1000,
+        Megohms: v => v * 1e6,
+        Gigaohms: v => v * 1e9
+      },
+      fromBase: {
+        Microhms: v => v / 1e-6,
+        Milliohms: v => v / 0.001,
+        Ohms: v => v,
+        Kilohms: v => v / 1000,
+        Megohms: v => v / 1e6,
+        Gigaohms: v => v / 1e9
+      }
+    },
+    {
+      id: 'illuminance',
+      name: 'Illuminance',
+      icon: '💡',
+      subtitle: 'Convert between units of illuminance',
+      units: ['Lux', 'Foot-candles', 'Lumens/Square Meter', 'Nox'],
+      base: 'Lux',
+      toBase: {
+        Lux: v => v,
+        'Foot-candles': v => v * 10.76391,
+        'Lumens/Square Meter': v => v,
+        Nox: v => v * 0.001
+      },
+      fromBase: {
+        Lux: v => v,
+        'Foot-candles': v => v / 10.76391,
+        'Lumens/Square Meter': v => v,
+        Nox: v => v / 0.001
+      }
+    },
+    {
+      id: 'radioactivity',
+      name: 'Radioactivity',
+      icon: '☢️',
+      subtitle: 'Convert between units of radioactivity and radiation',
+      units: ['Becquerels', 'Curies', 'Grays', 'Rads', 'Rems', 'Sieverts'],
+      base: 'Becquerels',
+      toBase: {
+        Becquerels: v => v,
+        Curies: v => v * 3.7e10,
+        Grays: v => v,
+        Rads: v => v * 0.01,
+        Rems: v => v * 0.01,
+        Sieverts: v => v
+      },
+      fromBase: {
+        Becquerels: v => v,
+        Curies: v => v / 3.7e10,
+        Grays: v => v,
+        Rads: v => v / 0.01,
+        Rems: v => v / 0.01,
+        Sieverts: v => v
+      }
+    },
+    {
+      id: 'datatransfer',
+      name: 'Data Transfer Rate',
+      icon: '🌐',
+      subtitle: 'Convert between data transfer rates',
+      units: ['Bits per second', 'Kilobits per second', 'Megabits per second', 'Gigabits per second', 'Terabits per second', 'Bytes per second', 'Megabytes per second', 'Gigabytes per second'],
+      base: 'Bits per second',
+      toBase: {
+        'Bits per second': v => v,
+        'Kilobits per second': v => v * 1000,
+        'Megabits per second': v => v * 1e6,
+        'Gigabits per second': v => v * 1e9,
+        'Terabits per second': v => v * 1e12,
+        'Bytes per second': v => v * 8,
+        'Megabytes per second': v => v * 8e6,
+        'Gigabytes per second': v => v * 8e9
+      },
+      fromBase: {
+        'Bits per second': v => v,
+        'Kilobits per second': v => v / 1000,
+        'Megabits per second': v => v / 1e6,
+        'Gigabits per second': v => v / 1e9,
+        'Terabits per second': v => v / 1e12,
+        'Bytes per second': v => v / 8,
+        'Megabytes per second': v => v / 8e6,
+        'Gigabytes per second': v => v / 8e9
+      }
+    },
+    {
+      id: 'cooking',
+      name: 'Cooking Volume',
+      icon: '🍳',
+      subtitle: 'Convert between cooking volume measurements',
+      units: ['Drops', 'Dashes', 'Teaspoons', 'Tablespoons', 'Fluid Ounces', 'Cups', 'Pints', 'Quarts', 'Gallons', 'Milliliters', 'Liters'],
+      base: 'Milliliters',
+      toBase: {
+        Drops: v => v * 0.05,
+        Dashes: v => v * 0.30805759960938,
+        Teaspoons: v => v * 4.92892159375,
+        Tablespoons: v => v * 14.78676478125,
+        'Fluid Ounces': v => v * 29.5735295625,
+        Cups: v => v * 236.5882365,
+        Pints: v => v * 473.176473,
+        Quarts: v => v * 946.352946,
+        Gallons: v => v * 3785.411784,
+        Milliliters: v => v,
+        Liters: v => v * 1000
+      },
+      fromBase: {
+        Drops: v => v / 0.05,
+        Dashes: v => v / 0.30805759960938,
+        Teaspoons: v => v / 4.92892159375,
+        Tablespoons: v => v / 14.78676478125,
+        'Fluid Ounces': v => v / 29.5735295625,
+        Cups: v => v / 236.5882365,
+        Pints: v => v / 473.176473,
+        Quarts: v => v / 946.352946,
+        Gallons: v => v / 3785.411784,
+        Milliliters: v => v,
+        Liters: v => v / 1000
+      }
+    },
+    {
+      id: 'pace',
+      name: 'Pace',
+      icon: '🏃',
+      subtitle: 'Convert between running pace units (non-linear)',
+      units: ['Minutes per Kilometer', 'Minutes per Mile', 'Kilometers per Hour', 'Miles per Hour'],
+      base: 'Minutes per Kilometer',
+      convert: (value, from, to) => {
+        if (from === to) return value;
+        let minkm;
+        if (from === 'Minutes per Kilometer') minkm = value;
+        else if (from === 'Minutes per Mile') minkm = value * 0.621371;
+        else if (from === 'Kilometers per Hour') minkm = value ? 60 / value : Infinity;
+        else if (from === 'Miles per Hour') minkm = value ? 60 / (value * 1.609344) : Infinity;
+
+        if (minkm === Infinity) return 0;
+
+        if (to === 'Minutes per Kilometer') return minkm;
+        if (to === 'Minutes per Mile') return minkm / 0.621371;
+        if (to === 'Kilometers per Hour') return minkm ? 60 / minkm : Infinity;
+        if (to === 'Miles per Hour') return minkm ? 60 / (minkm * 1.609344) : Infinity;
+        return minkm;
+      }
+    },
+    // ===== NEW CATEGORIES (10+) =====
+    {
+      id: 'acceleration',
+      name: 'Acceleration',
+      icon: '📈',
+      subtitle: 'Convert between units of acceleration',
+      units: ['Meters/Second²', 'Kilometers/Hour²', 'Feet/Second²', 'Miles/Hour²', 'G-Force', 'Gals'],
+      base: 'Meters/Second²',
+      toBase: {
+        'Meters/Second²': v => v,
+        'Kilometers/Hour²': v => v / 12960,
+        'Feet/Second²': v => v * 0.3048,
+        'Miles/Hour²': v => v / 8046.720,
+        'G-Force': v => v * 9.80665,
+        Gals: v => v * 0.01
+      },
+      fromBase: {
+        'Meters/Second²': v => v,
+        'Kilometers/Hour²': v => v * 12960,
+        'Feet/Second²': v => v / 0.3048,
+        'Miles/Hour²': v => v * 8046.720,
+        'G-Force': v => v / 9.80665,
+        Gals: v => v / 0.01
+      }
+    },
+    {
+      id: 'angularvelocity',
+      name: 'Angular Velocity',
+      icon: '🔄',
+      subtitle: 'Convert between units of angular velocity',
+      units: ['Revolutions per Minute', 'Revolutions per Second', 'Radians per Second', 'Degrees per Second', 'Radians per Minute'],
+      base: 'Radians per Second',
+      toBase: {
+        'Revolutions per Minute': v => v * Math.PI / 30,
+        'Revolutions per Second': v => v * 2 * Math.PI,
+        'Radians per Second': v => v,
+        'Degrees per Second': v => v * Math.PI / 180,
+        'Radians per Minute': v => v / 60
+      },
+      fromBase: {
+        'Revolutions per Minute': v => v * 30 / Math.PI,
+        'Revolutions per Second': v => v / (2 * Math.PI),
+        'Radians per Second': v => v,
+        'Degrees per Second': v => v * 180 / Math.PI,
+        'Radians per Minute': v => v * 60
+      }
+    },
+    {
+      id: 'capacitance',
+      name: 'Capacitance',
+      icon: '⚡',
+      subtitle: 'Convert between units of electric capacitance',
+      units: ['Picofarads', 'Nanofarads', 'Microfarads', 'Millifarads', 'Farads'],
+      base: 'Farads',
+      toBase: {
+        Picofarads: v => v * 1e-12,
+        Nanofarads: v => v * 1e-9,
+        Microfarads: v => v * 1e-6,
+        Millifarads: v => v * 0.001,
+        Farads: v => v
+      },
+      fromBase: {
+        Picofarads: v => v / 1e-12,
+        Nanofarads: v => v / 1e-9,
+        Microfarads: v => v / 1e-6,
+        Millifarads: v => v / 0.001,
+        Farads: v => v
+      }
+    },
+    {
+      id: 'inductance',
+      name: 'Inductance',
+      icon: '🧲',
+      subtitle: 'Convert between units of electrical inductance',
+      units: ['Microhenries', 'Millihenries', 'Henries', 'Kilohenries'],
+      base: 'Henries',
+      toBase: {
+        Microhenries: v => v * 1e-6,
+        Millihenries: v => v * 0.001,
+        Henries: v => v,
+        Kilohenries: v => v * 1000
+      },
+      fromBase: {
+        Microhenries: v => v / 1e-6,
+        Millihenries: v => v / 0.001,
+        Henries: v => v,
+        Kilohenries: v => v / 1000
+      }
+    },
+    {
+      id: 'magneticflux',
+      name: 'Magnetic Flux',
+      icon: '🧲',
+      subtitle: 'Convert between units of magnetic flux',
+      units: ['Webers', 'Milliwebers', 'Maxwells', 'Lines of Force'],
+      base: 'Webers',
+      toBase: {
+        Webers: v => v,
+        Milliwebers: v => v * 0.001,
+        Maxwells: v => v * 1e-8,
+        'Lines of Force': v => v * 1e-8
+      },
+      fromBase: {
+        Webers: v => v,
+        Milliwebers: v => v / 0.001,
+        Maxwells: v => v / 1e-8,
+        'Lines of Force': v => v / 1e-8
+      }
+    },
+    {
+      id: 'magneticfield',
+      name: 'Magnetic Field',
+      icon: '🧭',
+      subtitle: 'Convert between units of magnetic flux density',
+      units: ['Teslas', 'Milliteslas', 'Microteslas', 'Gauss', 'Gamma'],
+      base: 'Teslas',
+      toBase: {
+        Teslas: v => v,
+        Milliteslas: v => v * 0.001,
+        Microteslas: v => v * 1e-6,
+        Gauss: v => v * 1e-4,
+        Gamma: v => v * 1e-9
+      },
+      fromBase: {
+        Teslas: v => v,
+        Milliteslas: v => v / 0.001,
+        Microteslas: v => v / 1e-6,
+        Gauss: v => v / 1e-4,
+        Gamma: v => v / 1e-9
+      }
+    },
+    {
+      id: 'viscosity',
+      name: 'Viscosity',
+      icon: '🧴',
+      subtitle: 'Convert between units of viscosity',
+      units: ['Pascal-Seconds', 'Poise', 'Centipoise', 'Pound-force Seconds/Foot²', 'Reyn'],
+      base: 'Pascal-Seconds',
+      toBase: {
+        'Pascal-Seconds': v => v,
+        Poise: v => v * 0.1,
+        Centipoise: v => v * 0.001,
+        'Pound-force Seconds/Foot²': v => v * 47.88025898037,
+        Reyn: v => v * 6894.757293168
+      },
+      fromBase: {
+        'Pascal-Seconds': v => v,
+        Poise: v => v / 0.1,
+        Centipoise: v => v / 0.001,
+        'Pound-force Seconds/Foot²': v => v / 47.88025898037,
+        Reyn: v => v / 6894.757293168
+      }
+    },
+    {
+      id: 'sound',
+      name: 'Sound',
+      icon: '🔊',
+      subtitle: 'Convert between units of sound level',
+      units: ['Decibels (SPL)', 'Sones', 'Phons', 'Bel'],
+      base: 'Bel',
+      toBase: {
+        'Decibels (SPL)': v => v * 0.1,
+        Sones: v => Math.log2(v) + 4,
+        Phons: v => v * 0.1,
+        Bel: v => v
+      },
+      fromBase: {
+        'Decibels (SPL)': v => v / 0.1,
+        Sones: v => Math.pow(2, v - 4),
+        Phons: v => v / 0.1,
+        Bel: v => v
+      }
+    },
+    {
+      id: 'flowrate',
+      name: 'Flow Rate',
+      icon: '🌊',
+      subtitle: 'Convert between volumetric flow rate units',
+      units: ['Liters per Second', 'Liters per Minute', 'Cubic Meters per Hour', 'Gallons per Minute (GPM)', 'Gallons per Hour', 'Cubic Feet per Minute (CFM)', 'Cubic Feet per Second (CFS)'],
+      base: 'Liters per Second',
+      toBase: {
+        'Liters per Second': v => v,
+        'Liters per Minute': v => v / 60,
+        'Cubic Meters per Hour': v => v * 0.27777777777778,
+        'Gallons per Minute (GPM)': v => v * 0.06309019690444,
+        'Gallons per Hour': v => v * 0.00105150327333,
+        'Cubic Feet per Minute (CFM)': v => v * 0.4719474432,
+        'Cubic Feet per Second (CFS)': v => v * 28.316846592
+      },
+      fromBase: {
+        'Liters per Second': v => v,
+        'Liters per Minute': v => v * 60,
+        'Cubic Meters per Hour': v => v / 0.27777777777778,
+        'Gallons per Minute (GPM)': v => v / 0.06309019690444,
+        'Gallons per Hour': v => v / 0.00105150327333,
+        'Cubic Feet per Minute (CFM)': v => v / 0.4719474432,
+        'Cubic Feet per Second (CFS)': v => v / 28.316846592
+      }
+    },
+    {
+      id: 'textile',
+      name: 'Textile',
+      icon: '🧵',
+      subtitle: 'Convert between textile/ yarn measurement units',
+      units: ['Denier', 'Tex', 'Decitex', 'Metric Number (Nm)', 'Cotton Count (Ne)', 'Woolen Count'],
+      base: 'Tex',
+      toBase: {
+        Denier: v => v / 9,
+        Tex: v => v,
+        Decitex: v => v * 0.1,
+        'Metric Number (Nm)': v => v ? 1000 / v : Infinity,
+        'Cotton Count (Ne)': v => v ? 590.5 / v : Infinity,
+        'Woolen Count': v => v ? 344.75 / v : Infinity
+      },
+      fromBase: {
+        Denier: v => v * 9,
+        Tex: v => v,
+        Decitex: v => v / 0.1,
+        'Metric Number (Nm)': v => v ? 1000 / v : Infinity,
+        'Cotton Count (Ne)': v => v ? 590.5 / v : Infinity,
+        'Woolen Count': v => v ? 344.75 / v : Infinity
+      }
+    },
+    {
+      id: 'conductance',
+      name: 'Conductance',
+      icon: '⚡',
+      subtitle: 'Convert between units of electrical conductance',
+      units: ['Microsiemens', 'Millisiemens', 'Siemens', 'Kilosiemens', 'Mhos'],
+      base: 'Siemens',
+      toBase: {
+        Microsiemens: v => v * 1e-6,
+        Millisiemens: v => v * 0.001,
+        Siemens: v => v,
+        Kilosiemens: v => v * 1000,
+        Mhos: v => v
+      },
+      fromBase: {
+        Microsiemens: v => v / 1e-6,
+        Millisiemens: v => v / 0.001,
+        Siemens: v => v,
+        Kilosiemens: v => v / 1000,
+        Mhos: v => v
+      }
+    },
+    {
+      id: 'concentration',
+      name: 'Concentration',
+      icon: '🧪',
+      subtitle: 'Convert between chemical concentration units',
+      units: ['Molar (mol/L)', 'Millimolar', 'Micromolar', 'Percent (%)', 'Parts per Million (ppm)', 'Parts per Billion (ppb)'],
+      base: 'Molar (mol/L)',
+      toBase: {
+        'Molar (mol/L)': v => v,
+        Millimolar: v => v * 0.001,
+        Micromolar: v => v * 1e-6,
+        'Percent (%)': v => v * 0.1,
+        'Parts per Million (ppm)': v => v * 1e-6,
+        'Parts per Billion (ppb)': v => v * 1e-9
+      },
+      fromBase: {
+        'Molar (mol/L)': v => v,
+        Millimolar: v => v / 0.001,
+        Micromolar: v => v / 1e-6,
+        'Percent (%)': v => v / 0.1,
+        'Parts per Million (ppm)': v => v / 1e-6,
+        'Parts per Billion (ppb)': v => v / 1e-9
+      }
+    },
+    {
+      id: 'massflow',
+      name: 'Mass Flow Rate',
+      icon: '⚖️',
+      subtitle: 'Convert between mass flow rate units',
+      units: ['Kilograms per Second', 'Kilograms per Hour', 'Grams per Second', 'Pounds per Second', 'Pounds per Hour', 'Tons per Hour', 'Slugs per Second'],
+      base: 'Kilograms per Second',
+      toBase: {
+        'Kilograms per Second': v => v,
+        'Kilograms per Hour': v => v / 3600,
+        'Grams per Second': v => v * 0.001,
+        'Pounds per Second': v => v * 0.45359237,
+        'Pounds per Hour': v => v * 0.000125997881,
+        'Tons per Hour': v => v * 0.277777778,
+        'Slugs per Second': v => v * 14.59390294
+      },
+      fromBase: {
+        'Kilograms per Second': v => v,
+        'Kilograms per Hour': v => v * 3600,
+        'Grams per Second': v => v / 0.001,
+        'Pounds per Second': v => v / 0.45359237,
+        'Pounds per Hour': v => v / 0.000125997881,
+        'Tons per Hour': v => v / 0.277777778,
+        'Slugs per Second': v => v / 14.59390294
+      }
+    }
+  ];
+
+  // ===== DOM REFS =====
+  const categoryList = document.getElementById('categoryList');
+  const categorySearch = document.getElementById('categorySearch');
+  const categoryTitle = document.getElementById('categoryTitle');
+  const categorySubtitle = document.getElementById('categorySubtitle');
+  const fromValue = document.getElementById('fromValue');
+  const toValue = document.getElementById('toValue');
+  const fromUnit = document.getElementById('fromUnit');
+  const toUnit = document.getElementById('toUnit');
+  const swapBtn = document.getElementById('swapBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const toast = document.getElementById('toast');
+  const hamburger = document.getElementById('hamburger');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const themeToggle = document.getElementById('themeToggle');
+
+  let currentCategory = categories[0];
+  let isDarkMode = true;
+
+  // ===== CATEGORY ICONS =====
+  const categoryIcons = {
+    'Length': '📏',
+    'Mass/Weight': '⚖️',
+    'Area': '📐',
+    'Volume': '🧊',
+    'Temperature': '🌡️',
+    'Time': '⏱️',
+    'Digital Storage': '💾',
+    'Speed': '🚀',
+    'Energy': '⚡',
+    'Power': '🔌',
+    'Pressure': '🎈',
+    'Angle': '📐',
+    'Force': '💪',
+    'Torque': '🔧',
+    'Fuel Economy': '⛽',
+    'Frequency': '〰️',
+    'Density': '🧪',
+    'Electric Current': '⚡',
+    'Voltage': '🔋',
+    'Electric Resistance': '🔌',
+    'Illuminance': '💡',
+    'Radioactivity': '☢️',
+    'Data Transfer Rate': '🌐',
+    'Cooking Volume': '🍳',
+    'Pace': '🏃',
+    'Acceleration': '📈',
+    'Angular Velocity': '🔄',
+    'Capacitance': '⚡',
+    'Inductance': '🧲',
+    'Magnetic Flux': '🧲',
+    'Magnetic Field': '🧭',
+    'Viscosity': '🧴',
+    'Sound': '🔊',
+    'Flow Rate': '🌊',
+    'Textile': '🧵',
+    'Conductance': '⚡',
+    'Concentration': '🧪',
+    'Mass Flow Rate': '⚖️'
+  };
+
+  // ===== RENDER SIDEBAR =====
+  function renderCategories(filter = '') {
+    categoryList.innerHTML = '';
+    const filtered = categories.filter(c =>
+      c.name.toLowerCase().includes(filter.toLowerCase()) ||
+      c.id.toLowerCase().includes(filter.toLowerCase())
+    );
+    filtered.forEach(cat => {
+      const div = document.createElement('div');
+      div.className = 'category-item' + (cat.id === currentCategory.id ? ' active' : '');
+      div.innerHTML = `<span class="icon">${categoryIcons[cat.name] || '📋'}</span> ${cat.name}`;
+      div.dataset.id = cat.id;
+      div.addEventListener('click', () => {
+        selectCategory(cat.id);
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+          sidebarOverlay.classList.remove('open');
+        }
+      });
+      categoryList.appendChild(div);
+    });
+  }
+
+  // ===== SELECT CATEGORY =====
+  function selectCategory(id) {
+    const cat = categories.find(c => c.id === id);
+    if (!cat) return;
+    currentCategory = cat;
+    categoryTitle.textContent = cat.name;
+    categorySubtitle.textContent = cat.subtitle;
+
+    fromUnit.innerHTML = '';
+    toUnit.innerHTML = '';
+    cat.units.forEach(u => {
+      fromUnit.innerHTML += `<option value="${u}">${u}</option>`;
+      toUnit.innerHTML += `<option value="${u}">${u}</option>`;
+    });
+    if (cat.units.length > 1) toUnit.value = cat.units[1];
+
+    document.querySelectorAll('.category-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    fromValue.value = '';
+    toValue.value = '';
+    performConversion();
+  }
+
+  // ===== FORMAT NUMBER =====
+  function formatNumber(num) {
+    if (num === undefined || num === null || isNaN(num)) return '';
+    if (num === Infinity) return '∞';
+    if (num === -Infinity) return '-∞';
+    if (Math.abs(num) > 1e15 || (Math.abs(num) < 1e-10 && num !== 0)) {
+      return num.toExponential(6);
+    }
+    return parseFloat(num.toFixed(10)).toString();
+  }
+
+  // ===== PERFORM CONVERSION =====
+  function performConversion() {
+    const val = parseFloat(fromValue.value);
+    if (isNaN(val)) {
+      toValue.value = '';
+      return;
+    }
+
+    const from = fromUnit.value;
+    const to = toUnit.value;
+
+    if (from === to) {
+      toValue.value = formatNumber(val);
+      return;
+    }
+
+    let result;
+    const cat = currentCategory;
+
+    if (cat.convert) {
+      result = cat.convert(val, from, to);
+    } else if (cat.toBase && cat.fromBase) {
+      let baseVal;
+      const toBaseFn = cat.toBase[from];
+      const fromBaseFn = cat.fromBase[to];
+      if (!toBaseFn || !fromBaseFn) {
+        toValue.value = '';
+        return;
+      }
+      baseVal = toBaseFn(val);
+      result = fromBaseFn(baseVal);
+    } else {
+      toValue.value = '';
+      return;
+    }
+
+    toValue.value = formatNumber(result);
+  }
+
+  // ===== TOAST =====
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ===== THEME TOGGLE =====
+  function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('light-mode', !isDarkMode);
+    themeToggle.textContent = isDarkMode ? '🌙' : '☀️';
+    localStorage.setItem('uc-theme', isDarkMode ? 'dark' : 'light');
+  }
+
+  // ===== EVENTS =====
+
+  fromValue.addEventListener('input', performConversion);
+  fromUnit.addEventListener('change', performConversion);
+  toUnit.addEventListener('change', performConversion);
+
+  swapBtn.addEventListener('click', () => {
+    const tempUnit = fromUnit.value;
+    fromUnit.value = toUnit.value;
+    toUnit.value = tempUnit;
+    const tempVal = fromValue.value;
+    fromValue.value = toValue.value;
+    toValue.value = tempVal;
+    performConversion();
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const text = toValue.value;
+    if (!text) {
+      showToast('Nothing to copy');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Result';
+      }, 2000);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Copied to clipboard');
+    }
+  });
+
+  categorySearch.addEventListener('input', () => {
+    renderCategories(categorySearch.value);
+  });
+
+  hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    sidebarOverlay.classList.toggle('open');
+  });
+
+  sidebarOverlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+  });
+
+  fromValue.addEventListener('keydown', e => {
+    if (e.key === 'Enter') swapBtn.click();
+  });
+
+  themeToggle.addEventListener('click', toggleTheme);
+
+  // ===== THEME PERSISTENCE =====
+  const savedTheme = localStorage.getItem('uc-theme');
+  if (savedTheme === 'light') {
+    isDarkMode = false;
+    document.body.classList.add('light-mode');
+    themeToggle.textContent = '☀️';
+  }
+
+  // ===== INIT =====
+  renderCategories();
+  selectCategory('length');
+</script>
+</body>
+</html>
